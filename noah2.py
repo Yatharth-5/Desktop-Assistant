@@ -29,17 +29,21 @@ import datetime
 import speech_recognition as sr
 import wikipedia
 import os
+import pywhatkit
 import time
 import pygame
-from pygame import mixer
-from playsound import playsound
+import playsound
 import webbrowser
+import pyaudio
+
+
 chrome_path = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s'
 #webbrowser.get(chrome_path).open('http://docs.python.org/')
 #import pyaudio
-k=True
+#k=True
 engine=pyttsx3.init('sapi5')
 voices=engine.getProperty('voices')
+engine.setProperty('rate',150)
 #print(voices[0].id)
 engine.setProperty('voice',voices[1].id)
 
@@ -65,6 +69,7 @@ def playmusic(song):
     pygame.mixer.music.play(0)
     time.sleep(4)
 
+
 def web(str):
     speak("Just doing that!!")
     webbrowser.get(chrome_path).open(str)
@@ -73,69 +78,95 @@ def web(str):
 def speak(str):
     engine.say(str)
     print(str)
-    engine.runAndWait()
+    engine.runAndWait()    
 
 def take():
     '''This function takes input as speech and converts it into string'''
-    k=True
-    r=sr.Recognizer()
-    with sr.Microphone() as source:
-        print("Listening...")
-        r.pause_threshhold: 1 #it considers a 1 sec gap between a spoken text
-        r.energy_threshhold: 300
-        
-        audio = r.listen(source)
-        #query=input()
-        #stop()
-
     try:
-        print("Recognizing...")
-        query=r.recognize_google(audio,language='en-in')
-        print(f"User said:{query}")
-        #speak("Command received")
-        #if 'tell' or 'search' in query:
-         #   wiki(query)
-        if 'Peter' in query:
-            speak("Listening my lord")
-        
-        elif 'open codeforces' in query:
-            web("codeforces.com")
+        r=sr.Recognizer()
+        with sr.Microphone() as source:
+            print("Listening...")
+            r.pause_threshhold: 1 #it considers a 1 sec gap between a spoken text
+            r.energy_threshhold: 300
             
-        if 'open Whatsapp' in query:
-            #app("C:\\Users\\Admin\\AppData\\Local\\WhatsApp\\WhatsApp.exe")
-            web("web.whatsapp.com")
+            audio = r.listen(source)
+            #query=input()
+            #stop()
+
+        k=1
+
+        try:
+            print("Recognizing...")
+            query=r.recognize_google(audio,language='en-in')
+            print(f"User said:{query}")
+            query=query.lower()
+            #speak("Command received")
+            #if 'tell' or 'search' in query:
+            #   wiki(query)
+            if 'peter' in query:
+                speak("Listening my lord")
             
-        elif 'stop' in query :
-            speak("Thank you for using me!!")
-            k=False
-        elif 'task manager' in query:
-            app("C:\\Windows\\system32\\Taskmgr.exe")
-        elif 'shut down' in query:
-            pass
-        elif 'reminder' in query:
-            app("C:\\Users\\Admin\\PycharmProjects\\reminder\\main.py")
-        elif 'YouTube' in query:
-            web("youtube.com")
-        elif 'Play' in query:
-            web("https://gaana.com/")
-        elif 'Mar' in query:
-            playsound("shubhshubh.mp3")
-            #speak("Arre shubh shubh boliye...")       
+            if 'tell me' in query:
+                query.strip("tell me about")
+                speak(pywhatkit.info(query))
+                
+            
+            if 'open codeforces' in query:
+                web("codeforces.com")
+                
+            if 'open whatsapp' in query:
+                #app("C:\\Users\\Admin\\AppData\\Local\\WhatsApp\\WhatsApp.exe")
+                web("web.whatsapp.com")
+                
+            if 'stop' in query :
+                speak("Thank you for using me!!")
+                k=0
+            if 'task manager' in query:
+                app("C:\\Windows\\system32\\Taskmgr.exe")
+            if 'shut down' in query:
+                pywhatkit.shutdown(time=100)
+                speak("The system will shut down in 100 seconds")
+                speak("To cancel shutdown say, cancel shutdown")
+
+            if 'cancel shutdown' in query:
+                pywhatkit.cancel_shutdown()
+
+            if 'reminder' in query:
+                app("C:\\Users\\Admin\\PycharmProjects\\reminder\\main.py")
+            if 'youtube' in query:
+                web("youtube.com")
+            
+            if 'play' in query:
+                #query=query.strip("play ")
+                #query contains the name of the song to be played.
+               # if 'youtube' in query:
+                #query=query.strip(" on youtube")
+                pywhatkit.playonyt(query,use_api=True)
+                 
+            if 'mar' in query:   
+                #speak_slow("Arre shubh shubh boliye...")  
+                playmusic("shubhshubh.mp3")
+                #print("hi")
+            if 'translate' in query:
+                pass
+            
+
+        except Exception as e:
+            #print(e)
+            print("Say that again please...")
+            #speak("Say that again please...")
+            #return "None"
         
+        while k==1:
+            #print("hello, I am inside true block")
+            take()
+
+
+        return query
 
     except Exception as e:
-        #print(e)
-        print("Say that again please...")
-        #speak("Say that again please...")
-        #return "None"
-    
-    while k==True:
-          #print("hello, I am inside true block")
-          take()
-
-
-    return query
-
+        print(e)
+        time.sleep(10)
 
 
 
@@ -156,6 +187,7 @@ def wishme(naam):
 
 
 if __name__ == '__main__':
+    k=True
     speak("Please let me know your sweet, kind and gracious name")
 
     naam=input()
