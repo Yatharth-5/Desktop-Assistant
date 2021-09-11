@@ -37,7 +37,7 @@ import webbrowser
 import pyaudio
 
 
-chrome_path = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s'
+brave_path = '"C:/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe" %s'
 #webbrowser.get(chrome_path).open('http://docs.python.org/')
 #import pyaudio
 #k=True
@@ -47,6 +47,7 @@ engine.setProperty('rate',150)
 #print(voices[0].id)
 engine.setProperty('voice',voices[1].id)
 
+first_time=True
 
 def wiki(query):
     speak("Searching")
@@ -72,7 +73,7 @@ def playmusic(song):
 
 def web(str):
     speak("Just doing that!!")
-    webbrowser.get(chrome_path).open(str)
+    webbrowser.get(brave_path).open(str)
 
 
 def speak(str):
@@ -80,89 +81,100 @@ def speak(str):
     print(str)
     engine.runAndWait()    
 
+first_time=True
+
 def take():
     '''This function takes input as speech and converts it into string'''
+    '''
+    if k==1:
+        first_time=True
+        k=k+1'''
+
+    global first_time
+
     try:
         r=sr.Recognizer()
         with sr.Microphone() as source:
             print("Listening...")
-            r.pause_threshhold: 1 #it considers a 1 sec gap between a spoken text
-            r.energy_threshhold: 300
-            
+            r.pause_threshhold= 1 #it considers a 1 sec gap between a spoken text
+            r.energy_threshhold= 4000 #(300) by default
+            r.adjust_for_ambient_noise(source,duration=1)
+            r.dynamic_energy_threshold=True
             audio = r.listen(source)
             #query=input()
             #stop()
 
-        k=1
+        #k=1
 
-        try:
-            print("Recognizing...")
-            query=r.recognize_google(audio,language='en-in')
-            print(f"User said:{query}")
-            query=query.lower()
-            #speak("Command received")
-            #if 'tell' or 'search' in query:
-            #   wiki(query)
-            if 'peter' in query:
-                speak("Listening my lord")
-            
-            if 'tell me' in query:
-                query.strip("tell me about")
-                speak(pywhatkit.info(query))
+        if(bool(first_time)==True):
+            try:
+                print("Recognizing...")
+                query=r.recognize_google(audio,language='en-in')
+                print(f"User said:{query}")
+                query=query.lower()
+                #speak("Command received")
+                # if 'tell' or 'search' in query:
+                #    wiki(query)
+                if 'peter' in query:
+                    speak("Listening my lord")
                 
-            
-            if 'open codeforces' in query:
-                web("codeforces.com")
+                if 'tell me' in query:
+                    query.strip("tell me about")
+                    speak(pywhatkit.info(query))
+                    
+                if 'open codeforces' in query:
+                    web("codeforces.com")
+                    
+                if 'open whatsapp' in query:
+                    web("web.whatsapp.com")
+                    
+                if 'stop' in query :
+                    speak("Thank you for using me!!")
+                    k=0
+                if 'task manager' in query:
+                    app("C:\\Windows\\system32\\Taskmgr.exe")
+                if 'shut down' in query:
+                    pywhatkit.shutdown(time=100)
+                    speak("The system will shut down in 100 seconds")
+                    speak("To cancel shutdown say, cancel shutdown")
+
+                if 'cancel shutdown' in query:
+                    pywhatkit.cancel_shutdown()
+
+                if 'reminder' in query:
+                    app("C:\\Users\\Admin\\PycharmProjects\\reminder\\main.py")
+                if 'youtube' in query:
+                    web("youtube.com")
                 
-            if 'open whatsapp' in query:
-                #app("C:\\Users\\Admin\\AppData\\Local\\WhatsApp\\WhatsApp.exe")
-                web("web.whatsapp.com")
-                
-            if 'stop' in query :
-                speak("Thank you for using me!!")
-                k=0
-            if 'task manager' in query:
-                app("C:\\Windows\\system32\\Taskmgr.exe")
-            if 'shut down' in query:
-                pywhatkit.shutdown(time=100)
-                speak("The system will shut down in 100 seconds")
-                speak("To cancel shutdown say, cancel shutdown")
+                if 'play' in query:
+                    query=query.strip("play ")
+                    #query contains the name of the song to be played.
+                # if 'youtube' in query:
+                    #query=query.strip(" on youtube")
 
-            if 'cancel shutdown' in query:
-                pywhatkit.cancel_shutdown()
+                    pywhatkit.playonyt(query,use_api=True)
+                    speak(f"Sure, playing {query} on youtube")
+                    
+                if 'mar' in query:   
+                    #speak_slow("Arre shubh shubh boliye...")  
+                    playmusic("shubhshubh.mp3")
+                    #print("hi")
+                if 'translate' in query:
+                    pass
+                first_time=False
 
-            if 'reminder' in query:
-                app("C:\\Users\\Admin\\PycharmProjects\\reminder\\main.py")
-            if 'youtube' in query:
-                web("youtube.com")
-            
-            if 'play' in query:
-                #query=query.strip("play ")
-                #query contains the name of the song to be played.
-               # if 'youtube' in query:
-                #query=query.strip(" on youtube")
-                pywhatkit.playonyt(query,use_api=True)
-                 
-            if 'mar' in query:   
-                #speak_slow("Arre shubh shubh boliye...")  
-                playmusic("shubhshubh.mp3")
-                #print("hi")
-            if 'translate' in query:
-                pass
-            
-
-        except Exception as e:
-            #print(e)
-            print("Say that again please...")
-            #speak("Say that again please...")
-            #return "None"
-        
+            except Exception as e:
+                print(e)
+                print("Say that again please...")
+                #speak("Say that again please...")
+                #return "None"
+        '''
         while k==1:
             #print("hello, I am inside true block")
-            take()
+            take()'''
 
 
-        return query
+            #return query
 
     except Exception as e:
         print(e)
@@ -198,6 +210,8 @@ if __name__ == '__main__':
     wishme(naam)
     #wishme("Yatharth")
     take()
+
+
     #webbrowser.get(using='google-chrome')
     #web('youtube.com')
     #app("C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Accessories\\Wordpad.lnk")
