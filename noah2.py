@@ -203,12 +203,7 @@ if __name__ == '__main__':
     speak("Please let me know your sweet, kind and gracious name")
 
     naam=input()
-    if naam == "poonam" or naam=="arushi":
-        g="mam"
-    else:
-        g="sir"
     wishme(naam)
-    #wishme("Yatharth")
     take()
 
 
